@@ -9,7 +9,7 @@ fn main() {
     // initialize logger
     let _ = SimpleLogger::init(LevelFilter::Info, Config::default());
     let commands: ArgMatches = App::new("acr_crash_table")
-        .version("0.1")
+        .version("0.2")
         .author("Mark F Rodriguez")
         .about("ACR Crash Table Generator")
         .arg(
@@ -60,45 +60,45 @@ fn crash_generate_table(in_file: &str, out_file: &str) {
                 .expect("write failed");
             c_file.write_all("\n".as_bytes()).expect("write failed");
             fixed_wing_table
-                .push_str("const crash_table_record fixed_wing_table[CRASH_SAMPLES] = {\n");
+                .push_str("const crash_table_record fixed_wing_table[ACCEL_FIFO_AXIS_SIZE] = {\n");
             helicopter_table
-                .push_str("const crash_table_record helicopter_table[CRASH_SAMPLES] = {\n");
-            aftward_table.push_str("const crash_table_record aftward_table[CRASH_SAMPLES] = {\n");
+                .push_str("const crash_table_record helicopter_table[ACCEL_FIFO_AXIS_SIZE] = {\n");
+            aftward_table.push_str("const crash_table_record aftward_table[ACCEL_FIFO_AXIS_SIZE] = {\n");
             for result in rdr.records() {
                 // The iterator yields Result<StringRecord, Error>, so we check the
                 // error here.
                 let record = result.expect("Bad crash record");
                 // fixed wing table
                 let output_line = format!(
-                    "    {{{}f, {}f}},\n",
+                    "    {{{}, {}}},\n",
                     record[FIXED_WING_G_MIN_POSITION]
                         .parse::<String>()
-                        .unwrap_or("0.0f".to_string()),
+                        .unwrap_or("0".to_string()),
                     record[FIXED_WING_G_MAX_POSITION]
                         .parse::<String>()
-                        .unwrap_or("0.0f".to_string())
+                        .unwrap_or("0".to_string())
                 );
                 fixed_wing_table.push_str(&output_line);
                 // helicopter table
                 let output_line = format!(
-                    "    {{{}f, {}f}},\n",
+                    "    {{{}, {}}},\n",
                     record[HELICOPTER_G_MIN_POSITION]
                         .parse::<String>()
-                        .unwrap_or("0.0f".to_string()),
+                        .unwrap_or("0".to_string()),
                     record[HELICOPTER_G_MAX_POSITION]
                         .parse::<String>()
-                        .unwrap_or("0.0f".to_string())
+                        .unwrap_or("0".to_string())
                 );
                 helicopter_table.push_str(&output_line);
                 // aftward table
                 let output_line = format!(
-                    "    {{{}f, {}f}},\n",
+                    "    {{{}, {}}},\n",
                     record[AFTWARD_G_MIN_POSITION]
                         .parse::<String>()
-                        .unwrap_or("0.0f".to_string()),
+                        .unwrap_or("0".to_string()),
                     record[AFTWARD_G_MAX_POSITION]
                         .parse::<String>()
-                        .unwrap_or("0.0f".to_string())
+                        .unwrap_or("0".to_string())
                 );
                 aftward_table.push_str(&output_line);
             }
